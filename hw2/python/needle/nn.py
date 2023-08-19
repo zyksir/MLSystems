@@ -1,10 +1,12 @@
 """The module.
 """
+from importlib.metadata import requires
 from typing import List, Callable, Any
 from needle.autograd import Tensor
 from needle import ops
 import needle.init as init
 import numpy as np
+from functools import reduce
 
 
 class Parameter(Tensor):
@@ -98,12 +100,12 @@ class Linear(Module):
 
     def forward(self, X: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
+        # X: N x in_feat, weight: in_feat x out_feat
         out = X.matmul(self.weight)
         if self.bias:
             out += self.bias.broadcast_to(out.shape)
         return out
         ### END YOUR SOLUTION
-
 
 
 class Flatten(Module):
@@ -151,8 +153,8 @@ class BatchNorm1d(Module):
         self.eps = eps
         self.momentum = momentum
         ### BEGIN YOUR SOLUTION
-        self.weight = Parameter(init.ones(dim, device=device, dtype=dtype))
-        self.bias =  Parameter(init.zeros(dim, device=device, dtype=dtype))
+        self.weight = Parameter(init.ones(dim, device=device, dtype=dtype, requires_grad=True))
+        self.bias =  Parameter(init.zeros(dim, device=device, dtype=dtype, requires_grad=True))
         self.running_mean = init.zeros(dim)
         self.running_var  = init.ones(dim)
         ### END YOUR SOLUTION
@@ -162,14 +164,14 @@ class BatchNorm1d(Module):
         ### BEGIN YOUR SOLUTION
         # train time
         if self.training == False:
-            norm = (x - self.running_mean.broadcast_to(x.shape)) / ((self.running_var.broadcast_to(x.shape) + self.eps)**0.5)
+            norm = (x - self.running_mean.broadcast_to(x.shape)) / (self.running_var.broadcast_to(x.shape) + self.eps)**0.5
             return self.weight.broadcast_to(x.shape) * norm + self.bias.broadcast_to(x.shape)
         
-        batch_mean = x.sum((0,))/x.shape[0]
-        batch_var = ((x - batch_mean.broadcast_to(x.shape))**2).sum((0,))/x.shape[0]
-        self.running_mean = (1 - self.momentum)*self.running_mean + self.momentum*batch_mean
-        self.running_var = (1 - self.momentum)*self.running_var + self.momentum*batch_var
-        norm = (x - batch_mean.broadcast_to(x.shape)) / ((batch_var.broadcast_to(x.shape) + self.eps)**0.5)
+        batch_mean = x.sum((0,)) / x.shape[0]
+        batch_var = ((x - batch_mean.broadcast_to(x.shape))**2).sum((0,)) / x.shape[0]
+        self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * batch_mean.data
+        self.running_var = (1 - self.momentum) * self.running_var + self.momentum * batch_var.data
+        norm = (x - batch_mean.broadcast_to(x.shape)) / (batch_var.broadcast_to(x.shape) + self.eps)**0.5
         return self.weight.broadcast_to(x.shape) * norm + self.bias.broadcast_to(x.shape)
         ### END YOUR SOLUTION
 
@@ -180,8 +182,8 @@ class LayerNorm1d(Module):
         self.dim = dim
         self.eps = eps
         ### BEGIN YOUR SOLUTION
-        self.weight = Parameter(init.ones(dim, device=device, dtype=dtype))
-        self.bias =  Parameter(init.zeros(dim, device=device, dtype=dtype))
+        self.weight = Parameter(init.ones(dim, device=device, dtype=dtype, requires_grad=True))
+        self.bias =  Parameter(init.zeros(dim, device=device, dtype=dtype, requires_grad=True))
         ### END YOUR SOLUTION
 
     def forward(self, x: Tensor) -> Tensor:
