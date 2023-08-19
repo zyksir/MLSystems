@@ -80,7 +80,7 @@ class PowerScalar(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        return out_grad * self.scalar * node.inputs[0].power_scalar(self.scalar-1)
+        return out_grad * self.scalar * (node.inputs[0]**(self.scalar-1))
         ### END YOUR SOLUTION
 
 
@@ -310,12 +310,25 @@ class LogSumExp(TensorOp):
 
     def compute(self, Z):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        max_z_original = array_api.max(Z, self.axes, keepdims=True) 
+        max_z_reduce = array_api.max(Z, self.axes)
+        return array_api.log(array_api.sum(array_api.exp(Z - max_z_original), self.axes)) + max_z_reduce
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        z_original = node.inputs[0]
+        max_z = z_original.realize_cached_data().max(self.axes, keepdims=True)
+        exp_z = exp(z_original - max_z)
+        sum_exp_z = summation(exp_z, self.axes)
+        grad_sum_exp_z = out_grad / sum_exp_z
+        expand_shape = list(z_original.shape)
+        axes = range(len(expand_shape)) if self.axes is None else self.axes
+        for axe in axes:
+            expand_shape[axe] = 1
+        grad_sum_exp_z = grad_sum_exp_z.reshape(expand_shape).broadcast_to(z_original.shape)
+        return grad_sum_exp_z * exp_z
+
         ### END YOUR SOLUTION
 
 
