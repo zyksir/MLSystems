@@ -394,6 +394,33 @@ void EwiseTanh(const CudaArray& a, CudaArray* out) {
 // Elementwise and scalar operations
 ////////////////////////////////////////////////////////////////////////////////
 
+CudaDims CudaTwoDim(size_t X, size_t Y) {
+  /**
+   * Utility function to get cuda dimensions for 1D call
+   */
+  CudaDims dim;
+  size_t num_block_x = (X + BASE_THREAD_NUM - 1) / BASE_THREAD_NUM;
+  size_t num_block_y = (Y + BASE_THREAD_NUM - 1) / BASE_THREAD_NUM;
+  dim.block = dim3(BASE_THREAD_NUM, BASE_THREAD_NUM, 1);
+  dim.grid = dim3(num_block_x, num_block_y, 1);
+  return dim;
+}
+
+/**
+ * a: compact 2D array of size m x n
+ * b: comapct 2D array of size n x p
+ * out: compact 2D array of size m x p to write the output to
+*/
+__global__ void MatMulKernel(const scalar_t* a, const scalar_t* b, scalar_t* out, 
+        uint32_t M, uint32_t N, uint32_t P) {
+  size_t tid_x = blockIdx.x * blockDim.x + threadIdx.x;
+  size_t tid_y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (tid_x < M && tid_y < P) {
+    scalar_t val = 0;
+    for(size_t k = 0; k < N; ++k) val += a[tid_x * N + k]*b[k * P + tid_y];
+    out[tid_x * P + tid_y] = val;
+  }
+}
 
 
 void Matmul(const CudaArray& a, const CudaArray& b, CudaArray* out, uint32_t M, uint32_t N,
@@ -421,7 +448,8 @@ void Matmul(const CudaArray& a, const CudaArray& b, CudaArray* out, uint32_t M, 
    */
 
   /// BEGIN YOUR SOLUTION
-  
+  CudaDims dim = CudaTwoDim(M, P);
+  MatMulKernel<<<dim.grid, dim.block>>>(a.ptr, b.ptr, out->ptr, M, N, P);
   /// END YOUR SOLUTION
 }
 
