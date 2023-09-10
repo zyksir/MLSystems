@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.2)
 project(needle C CXX)
 
 # find correct version of Python
-execute_process(COMMAND python3-config --prefix
-  OUTPUT_VARIABLE Python_ROOT_DIR)
-find_package(Python COMPONENTS Development Interpreter REQUIRED)
-include_directories(${Python_INCLUDE_DIRS})
+# execute_process(COMMAND python3-config --prefix
+#   OUTPUT_VARIABLE Python_ROOT_DIR)
+# find_package(Python COMPONENTS Development Interpreter REQUIRED)
+# include_directories(${Python_INCLUDE_DIRS})
+include_directories(/usr/local/opt/python@3.9/Frameworks/Python.framework/Versions/3.9/include/python3.9)
 
 # find pybind
 execute_process(COMMAND python3 -m pybind11 --cmakedir
@@ -13,6 +14,7 @@ execute_process(COMMAND python3 -m pybind11 --cmakedir
   OUTPUT_VARIABLE __pybind_path
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 find_package(pybind11 PATHS ${__pybind_path})
+message(DEBUG_PYBIND_PATH="${__pybind_path}")
 
 
 if(NOT MSVC)
