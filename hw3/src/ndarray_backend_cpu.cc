@@ -338,9 +338,9 @@ void MatmulTiled(const AlignedArray& a, const AlignedArray& b, AlignedArray* out
   for(uint32_t i = 0; i < m/TILE; i++) {
     for(uint32_t j = 0; j < p/TILE; j++) {
       for(uint32_t k = 0; k < n/TILE; k++) {
-        AlignedDot(a.ptr+(i*n+k*TILE)*TILE, 
-        b.ptr+(k*p+j*TILE)*TILE, 
-        out->ptr+(i*p+j*TILE)*TILE);
+        AlignedDot(&a.ptr[(i*n+k*TILE)*TILE], 
+                   &b.ptr[(k*p+j*TILE)*TILE], 
+                   &out->ptr[(i*p+j*TILE)*TILE]);
       }
     }
   }
