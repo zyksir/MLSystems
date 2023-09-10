@@ -399,9 +399,12 @@ CudaDims CudaTwoDim(size_t X, size_t Y) {
    * Utility function to get cuda dimensions for 1D call
    */
   CudaDims dim;
-  size_t num_block_x = (X + BASE_THREAD_NUM - 1) / BASE_THREAD_NUM;
-  size_t num_block_y = (Y + BASE_THREAD_NUM - 1) / BASE_THREAD_NUM;
-  dim.block = dim3(BASE_THREAD_NUM, BASE_THREAD_NUM, 1);
+
+  size_t num_thread_x = X > BASE_THREAD_NUM ? BASE_THREAD_NUM : X;
+  size_t num_thread_y = Y > BASE_THREAD_NUM ? BASE_THREAD_NUM : Y;
+  size_t num_block_x = X > BASE_THREAD_NUM ? (X + BASE_THREAD_NUM - 1) / BASE_THREAD_NUM : 1;
+  size_t num_block_y = Y > BASE_THREAD_NUM ? (Y + BASE_THREAD_NUM - 1) / BASE_THREAD_NUM : 1;
+  dim.block = dim3(num_thread_x, num_thread_y, 1);
   dim.grid = dim3(num_block_x, num_block_y, 1);
   return dim;
 }
