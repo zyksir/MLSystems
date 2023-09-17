@@ -132,7 +132,7 @@ class PowerScalar(TensorOp):
 
     def compute(self, a: NDArray) -> NDArray:
         ### BEGIN YOUR SOLUTION
-        return array_api.power(a, self.scalar)
+        return a ** self.scalar
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -150,7 +150,7 @@ class EWiseDiv(TensorOp):
 
     def compute(self, a, b):
         ### BEGIN YOUR SOLUTION
-        return array_api.divide(a, b)
+        return a / b
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -170,7 +170,7 @@ class DivScalar(TensorOp):
 
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        return a/self.scalar
+        return a / self.scalar
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -211,9 +211,9 @@ class Reshape(TensorOp):
     def __init__(self, shape):
         self.shape = shape
 
-    def compute(self, a):
+    def compute(self, a: NDArray) -> NDArray:
         ### BEGIN YOUR SOLUTION
-        return array_api.reshape(a, self.shape)
+        return a.compact().reshape(self.shape)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -253,9 +253,14 @@ class Summation(TensorOp):
     def __init__(self, axes: Optional[tuple] = None):
         self.axes = axes
 
-    def compute(self, a):
+    def compute(self, a: NDArray) -> NDArray:
         ### BEGIN YOUR SOLUTION
-        return array_api.sum(a, axis=self.axes)
+        if isinstance(self.axes, (list, tuple)) and len(self.axes) > 1:
+            # multiple axes case
+            for axis in reversed(sorted(self.axes)):
+                a = a.sum(axis = axis)
+            return a
+        return array_api.summation(a, axis=self.axes)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -297,12 +302,12 @@ def matmul(a, b):
 class Negate(TensorOp):
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        return array_api.negative(a)
+        return  - a
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        return -out_grad
+        return - out_grad
         ### END YOUR SOLUTION
 
 
@@ -350,9 +355,8 @@ class ReLU(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        out = node.realize_cached_data().copy()
-        out[out > 0] = 1
-        return out_grad * Tensor(out)
+        out = node.realize_cached_data()
+        return out_grad * Tensor(out > 0, device=out_grad.device)
         ### END YOUR SOLUTION
 
 
@@ -451,7 +455,7 @@ class Split(TensorTupleOp):
         """
         self.axis = axis
 
-    def compute(self, A: Tensor) -> List[NDArray]:
+    def compute(self, A: NDArray) -> List[NDArray]:
         ### BEGIN YOUR SOLUTION
         new_shape = list(A.shape)
         n = new_shape[self.axis]
@@ -459,7 +463,7 @@ class Split(TensorTupleOp):
         out, slices = [], [slice(0, s) for s in new_shape]
         for i in range(n):
             slices[i] = slice(i, i+1)
-            out.append(A[tuple(slices)].compact().reshape(new_shape).cached_data)
+            out.append(A[tuple(slices)].compact().reshape(new_shape))
         return tuple(out)
         ### END YOUR SOLUTION
 
