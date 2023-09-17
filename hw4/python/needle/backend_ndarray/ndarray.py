@@ -589,7 +589,7 @@ class NDArray:
         assert len(axes) <= len(self.shape), f"got axes:{axes} while shape is {self.shape}"
         new_strides = list(self.strides)
         for axis in axes:
-            new_strides[axis] = - self.strides[axis]
+            new_strides[axis] = - new_strides[axis]
         new_strides = tuple(new_strides)
         new_offset = sum([(self.shape[axis] - 1)*self.strides[axis] for axis in axes])
         out = NDArray.make(shape=self.shape, strides=new_strides, 
