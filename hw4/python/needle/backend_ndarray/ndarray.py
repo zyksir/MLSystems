@@ -586,7 +586,14 @@ class NDArray:
         Note: compact() before returning.
         """
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        assert len(axes) <= len(self.shape), f"got axes:{axes} while shape is {self.shape}"
+        new_strides = list(self.strides)
+        for axis in axes:
+            new_strides[axis] = - self.strides[axis]
+        new_strides = tuple(new_strides)
+        new_offset = sum([(self.shape[axis] - 1)*self.strides[axis] for axis in axes])
+        out = NDArray.make(self.shape, new_strides, self.device, self._handle, new_offset)
+        return out.compact()
         ### END YOUR SOLUTION
 
 
@@ -597,7 +604,12 @@ class NDArray:
         axes = ( (0, 0), (1, 1), (0, 0)) pads the middle axis with a 0 on the left and right side.
         """
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        assert len(axes) == len(self.shape), f"got axes: {axes} but shape is {self.shape}"
+        new_shape = tuple([l + n + r for (l ,r), n in zip(axes, self.shape)])
+        slices = [slice(l, l+n) for (l ,_), n in zip(axes, self.shape)]
+        out = self.device.empty(new_shape, self.dtype)
+        out[slices] = self
+        return out
         ### END YOUR SOLUTION
 
 
