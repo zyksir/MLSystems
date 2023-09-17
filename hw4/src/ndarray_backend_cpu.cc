@@ -44,10 +44,10 @@ void Fill(AlignedArray* out, scalar_t val) {
 }
 
 enum strided_out_mode {COMPACT_OUT, NON_COMPACT_OUT, SET_SCALAR};
-void _stride_out_setter(const AlignedArray* a, AlignedArray* out, std::vector<uint32_t> shape,
-             std::vector<uint32_t> strides, size_t offset, strided_out_mode mode, scalar_t val=-1) {
+void _stride_out_setter(const AlignedArray* a, AlignedArray* out, std::vector<int32_t> shape,
+             std::vector<int32_t> strides, size_t offset, strided_out_mode mode, scalar_t val=-1) {
   const uint32_t ndim = shape.size();
-  std::vector<uint32_t> out_dim(ndim, 0);
+  std::vector<int32_t> out_dim(ndim, 0);
   uint32_t compact_index = 0;
   while (true) {
     uint32_t non_compact_index = offset;
@@ -94,8 +94,8 @@ void Compact(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shap
   /// END YOUR SOLUTION
 }
 
-void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<uint32_t> shape,
-                  std::vector<uint32_t> strides, size_t offset) {
+void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shape,
+                  std::vector<int32_t> strides, size_t offset) {
   /**
    * Set items in a (non-compact) array
    *
@@ -111,8 +111,8 @@ void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<uint32_t
   /// END YOUR SOLUTION
 }
 
-void ScalarSetitem(const size_t size, scalar_t val, AlignedArray* out, std::vector<uint32_t> shape,
-                   std::vector<uint32_t> strides, size_t offset) {
+void ScalarSetitem(const size_t size, scalar_t val, AlignedArray* out, std::vector<int32_t> shape,
+                   std::vector<int32_t> strides, size_t offset) {
   /**
    * Set items is a (non-compact) array
    *
