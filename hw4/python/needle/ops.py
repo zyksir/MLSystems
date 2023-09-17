@@ -560,9 +560,23 @@ class Conv(TensorOp):
         self.stride = stride
         self.padding = padding
 
-    def compute(self, A, B):
+    def compute(self, A: NDArray, B: NDArray):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        assert len(A.shape) == 4, f"A.dim should be 4 but got {len(A.shape)}"
+        A = A.pad((0, 0), (self.padding, self.padding), (self.padding, self.padding), (0, 0))
+        N, H, W, C_in = A.shape
+        Ns, Hs, Ws, Cs = A.strides
+        K, K_, C_in_, C_out = B.shape
+        assert K == K_, "Conv kernel should be a square tensor"
+        assert C_in == C_in_, "Conv kernel and input are not compatible"
+        
+        out_H, out_W = (H-K+1)//self.stride, (W-K+1)//self.stride
+        im2col = A.as_strided(
+            shape=(N, out_H, out_W, K, K, C_in),
+            strides=(Ns, Hs*self.stride, Ws*self.stride, Hs, Ws, Cs)
+        ).compact().reshape((N*out_H*out_W, K*K*C_in))
+        out = im2col @ (B.compact().reshape((K*K*C_in, C_out)))
+        return out.compact().reshape((N, out_H, out_W, C_out))
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
