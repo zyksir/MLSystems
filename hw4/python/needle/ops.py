@@ -190,11 +190,11 @@ class Transpose(TensorOp):
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
         axes = list(range(len(a.shape)))
-        x, y = -1, -2
+        x, y = a.ndim-1, a.ndim-2
         if self.axes is not None:
             x, y = self.axes[0], self.axes[1]
         axes[x], axes[y] = axes[y], axes[x]
-        return array_api.transpose(a, axes=axes)
+        return a.permute(axes)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -370,9 +370,9 @@ class LogSumExp(TensorOp):
 
     def compute(self, Z):
         ### BEGIN YOUR SOLUTION
-        max_z_original = array_api.max(Z, self.axes, keepdims=True) 
-        max_z_reduce = array_api.max(Z, self.axes)
-        return array_api.log(array_api.sum(array_api.exp(Z - max_z_original), self.axes)) + max_z_reduce
+        max_z_original = Z.max(self.axes, keepdims=True) 
+        max_z_reduce = Z.max(self.axes)
+        return array_api.log(array_api.summation(array_api.exp(Z - max_z_original), self.axes)) + max_z_reduce
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -429,7 +429,7 @@ class Stack(TensorOp):
         out = array_api.empty(new_shape, device=args[0].device)
         slices = [slice(0, s) for s in new_shape]
         for i in range(n):
-            slices[i] = slices(i, i+1)
+            slices[i] = slice(i, i+1)
             out[tuple(slices)] = args[i]
         return out 
         ### END YOUR SOLUTION
