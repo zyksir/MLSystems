@@ -608,7 +608,7 @@ class NDArray:
         new_shape = tuple([l + n + r for (l ,r), n in zip(axes, self.shape)])
         slices = [slice(l, l+n) for (l ,_), n in zip(axes, self.shape)]
         out = self.device.empty(new_shape, self.dtype)
-        out[slices] = self
+        out[tuple(slices)] = self
         return out
         ### END YOUR SOLUTION
 
