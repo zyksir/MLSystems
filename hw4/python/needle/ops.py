@@ -436,7 +436,7 @@ class Stack(TensorOp):
         out = array_api.empty(new_shape, device=args[0].device)
         slices = [slice(0, s) for s in new_shape]
         for i in range(n):
-            slices[i] = slice(i, i+1)
+            slices[self.axis] = slice(i, i+1)
             out[tuple(slices)] = args[i]
         return out 
         ### END YOUR SOLUTION
@@ -469,7 +469,7 @@ class Split(TensorTupleOp):
         new_shape.pop(self.axis)
         out, slices = [], [slice(0, s) for s in new_shape]
         for i in range(n):
-            slices[i] = slice(i, i+1)
+            slices[self.axis] = slice(i, i+1)
             out.append(A[tuple(slices)].compact().reshape(new_shape))
         return tuple(out)
         ### END YOUR SOLUTION
