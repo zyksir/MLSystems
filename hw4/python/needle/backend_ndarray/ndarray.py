@@ -592,7 +592,8 @@ class NDArray:
             new_strides[axis] = - self.strides[axis]
         new_strides = tuple(new_strides)
         new_offset = sum([(self.shape[axis] - 1)*self.strides[axis] for axis in axes])
-        out = NDArray.make(self.shape, new_strides, self.device, self._handle, new_offset)
+        out = NDArray.make(shape=self.shape, strides=new_strides, 
+                           device=self._device, handle=self._handle, offset=new_offset)
         return out.compact()
         ### END YOUR SOLUTION
 
