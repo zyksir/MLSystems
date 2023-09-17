@@ -246,7 +246,11 @@ class NDArray:
         """
 
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        if not self.is_compact():
+            raise ValueError("the matrix is not compact")
+        if not prod(new_shape) == prod(self._shape):
+            raise ValueError(f"the matrix is not compact")
+        return NDArray.make(new_shape, NDArray.compact_strides(new_shape), device=self._device, handle=self._handle)
         ### END YOUR SOLUTION
 
     def permute(self, new_axes):
@@ -271,7 +275,9 @@ class NDArray:
         """
 
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        new_shape = tuple(np.array(self._shape)[list(new_axes)])
+        new_strides = tuple(np.array(self._strides)[list(new_axes)])
+        return NDArray.make(new_shape, new_strides, device=self._device, handle=self._handle)
         ### END YOUR SOLUTION
 
     def broadcast_to(self, new_shape):
@@ -294,7 +300,11 @@ class NDArray:
             point to the same memory as the original array.
         """
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        assert all(ns == s for ns, s in zip(new_shape, self._shape) if s != 1),\
+            f"{self._shape} cannot broadcast to {new_shape}"
+        new_strides = tuple(stride if new_shape[i] == self._shape[i] else 0 \
+            for i, stride in enumerate(self._strides))
+        return NDArray.make(new_shape, new_strides, self._device, self._handle)
         ### END YOUR SOLUTION
 
     ### Get and set elements
@@ -361,7 +371,11 @@ class NDArray:
         assert len(idxs) == self.ndim, "Need indexes equal to number of dimensions"
 
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        new_offset = sum(idx.start*stride for idx, stride in zip(idxs, self._strides))
+        new_shape = tuple((idx.stop - idx.start+idx.step-1)//idx.step for idx in idxs)
+        new_strides = tuple(idx.step*stride for idx, stride in zip(idxs, self._strides))
+        return NDArray.make(shape=new_shape, strides=new_strides, \
+            device=self._device, handle=self._handle, offset=new_offset)
         ### END YOUR SOLUTION
 
     def __setitem__(self, idxs, other):
