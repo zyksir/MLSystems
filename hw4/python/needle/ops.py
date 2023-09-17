@@ -563,7 +563,7 @@ class Conv(TensorOp):
     def compute(self, A: NDArray, B: NDArray):
         ### BEGIN YOUR SOLUTION
         assert len(A.shape) == 4, f"A.dim should be 4 but got {len(A.shape)}"
-        A = A.pad((0, 0), (self.padding, self.padding), (self.padding, self.padding), (0, 0))
+        A = A.pad(((0, 0), (self.padding, self.padding), (self.padding, self.padding), (0, 0)))
         N, H, W, C_in = A.shape
         Ns, Hs, Ws, Cs = A.strides
         K, K_, C_in_, C_out = B.shape
