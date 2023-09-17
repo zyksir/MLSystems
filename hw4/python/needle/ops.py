@@ -280,7 +280,7 @@ def summation(a, axes=None):
 class MatMul(TensorOp):
     def compute(self, a, b):
         ### BEGIN YOUR SOLUTION
-        return array_api.matmul(a, b)
+        return a @ b
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
