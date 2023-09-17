@@ -581,7 +581,21 @@ class Conv(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        X, W = node.inputs
+        K, _, _, _ = W.shape
+        if self.stride:
+            out_grad = dilate(out_grad, (1, 2), self.stride - 1)
+        W_flip = transpose(flip(W, (0, 1)), (2, 3)) # (K, K, C_out, C_in)
+        # out_grad: (N, H+2P-K+1, W+2P-K+1, C_out)
+        # H+2P-K+1-2X-K-1 = H -> X=K-1-P
+        X_grad = conv(out_grad, W_flip, padding=K-1-self.padding)
+        
+        X_permute = transpose(X, (0, 3))    # (C_in, H, W, N)
+        grad_permute = transpose(transpose(out_grad, (0, 1)), (1, 2)) # (H+2P-K+1, W+2P-K+1, N, C_out)
+        # H+2X-(H+2P-K+1)+1 = K -> X=P
+        W_grad = conv(X_permute, grad_permute, padding=self.padding) # (C_in, K, K, C_out)
+        W_grad = transpose(transpose(W_grad, (0, 1)), (1, 2))
+        return X_grad, W_grad
         ### END YOUR SOLUTION
 
 
