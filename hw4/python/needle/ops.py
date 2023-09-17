@@ -266,7 +266,14 @@ class Summation(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         new_shape = list(node.inputs[0].shape)
-        axes = range(len(new_shape)) if self.axes is None else self.axes
+        if self.axes is None:
+            axes = range(len(new_shape))
+        elif isinstance(self.axes, tuple):
+            axes = self.axes
+        elif isinstance(self.axes, int):
+            axes = (self.axes,)
+        else:
+            raise ValueError("Unsupported axes type, must be int, tuple or None!")
         for axis in axes:
             new_shape[axis] = 1
         return out_grad.reshape(new_shape).broadcast_to(node.inputs[0].shape)
@@ -372,14 +379,14 @@ class LogSumExp(TensorOp):
         ### BEGIN YOUR SOLUTION
         max_z_original = Z.max(self.axes, keepdims=True) 
         max_z_reduce = Z.max(self.axes)
-        return array_api.log(array_api.summation(array_api.exp(Z - max_z_original), self.axes)) + max_z_reduce
+        return array_api.log(array_api.summation(array_api.exp(Z - max_z_original.broadcast_to(Z.shape)), self.axes)) + max_z_reduce
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         z_original = node.inputs[0]
         max_z = z_original.realize_cached_data().max(self.axes, keepdims=True)
-        exp_z = exp(z_original - max_z)
+        exp_z = exp(z_original - max_z.broadcast_to(z_original.shape))
         sum_exp_z = summation(exp_z, self.axes)
         grad_sum_exp_z = out_grad / sum_exp_z
         expand_shape = list(z_original.shape)
