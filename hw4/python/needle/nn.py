@@ -105,10 +105,12 @@ class Linear(Module):
         ### END YOUR SOLUTION
 
 
+from functools import reduce
 class Flatten(Module):
     def forward(self, X):
         ### BEGIN YOUR SOLUTION
-        return X.reshape((X.shape[0], -1))
+        size = reduce(lambda a, b: a * b, X.shape)
+        return X.reshape((X.shape[0], size // X.shape[0]))
         ### END YOUR SOLUTION
 
 
@@ -153,8 +155,8 @@ class Sequential(Module):
 class SoftmaxLoss(Module):
     def forward(self, logits: Tensor, y: Tensor):
         ### BEGIN YOUR SOLUTION
-        z_y = (init.one_hot(logits.shape[1], y) * logits / logits.shape[0]).sum((-1,))
-        ans = (ops.logsumexp(logits, (-1,)) / logits.shape[0] - z_y).sum()
+        z_y = (init.one_hot(logits.shape[1], y) * logits / logits.shape[0]).sum((1,))
+        ans = (ops.logsumexp(logits, (1,)) / logits.shape[0] - z_y).sum()
         return ans
         ### END YOUR SOLUTION
 
