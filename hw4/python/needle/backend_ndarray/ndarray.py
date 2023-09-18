@@ -249,7 +249,7 @@ class NDArray:
         if not self.is_compact():
             raise ValueError("the matrix is not compact")
         if not prod(new_shape) == prod(self._shape):
-            raise ValueError(f"the matrix is not compact")
+            raise ValueError(f"new_shape is {new_shape} while original shape is {self._shape}")
         return NDArray.make(new_shape, NDArray.compact_strides(new_shape), device=self._device, handle=self._handle)
         ### END YOUR SOLUTION
 
