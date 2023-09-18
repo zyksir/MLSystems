@@ -18,7 +18,7 @@ class ResNet9(ndl.nn.Module):
                                        nn.ConvBN(32, 32, 3, 1, device=device),
                                        )),
                                    nn.ConvBN(32, 64, 3, 2, device=device),
-                                   nn.ConvBN(32, 128, 3, 2, device=device),
+                                   nn.ConvBN(64, 128, 3, 2, device=device),
                                    nn.Residual(nn.Sequential(
                                        nn.ConvBN(128, 128, 3, 1, device=device),
                                        nn.ConvBN(128, 128, 3, 1, device=device),
