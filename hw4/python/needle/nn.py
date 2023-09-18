@@ -88,11 +88,11 @@ class Linear(Module):
         self.out_features = out_features
 
         ### BEGIN YOUR SOLUTION
-        self.weight = Parameter(init.kaiming_uniform(in_features, out_features, nonlinearity="relu", \
+        self.weight = Parameter(init.kaiming_uniform(in_features, out_features, shape=(in_features, out_features), nonlinearity="relu", \
                                 device=device, dtype=dtype, requires_grad=True))
         self.bias = None
         if bias:
-            self.bias = Parameter(init.kaiming_uniform(out_features, 1, nonlinearity="relu", \
+            self.bias = Parameter(init.kaiming_uniform(out_features, 1, shape=(out_features, 1), nonlinearity="relu", \
                                 device=device, dtype=dtype, requires_grad=True).transpose())
         ### END YOUR SOLUTION
 
