@@ -166,10 +166,10 @@ class BatchNorm1d(Module):
         self.eps = eps
         self.momentum = momentum
         ### BEGIN YOUR SOLUTION
-        self.weight = Parameter(init.ones(dim, device=device, dtype=dtype, requires_grad=True))
-        self.bias =  Parameter(init.zeros(dim, device=device, dtype=dtype, requires_grad=True))
-        self.running_mean = init.zeros(dim)
-        self.running_var  = init.ones(dim)
+        self.weight = Parameter(init.ones(1, dim, device=device, dtype=dtype, requires_grad=True))
+        self.bias =  Parameter(init.zeros(1, dim, device=device, dtype=dtype, requires_grad=True))
+        self.running_mean = init.zeros(1, dim)
+        self.running_var  = init.ones(1, dim)
         ### END YOUR SOLUTION
 
     def forward(self, x: Tensor) -> Tensor:
@@ -179,10 +179,12 @@ class BatchNorm1d(Module):
             return self.weight.broadcast_to(x.shape) * norm + self.bias.broadcast_to(x.shape)
         
         batch_mean = x.sum((0,)) / x.shape[0]
+        batch_mean = batch_mean.reshape((1, x.shape[1]))
         batch_var = ((x - batch_mean.broadcast_to(x.shape))**2).sum((0,)) / x.shape[0]
+        batch_var = batch_var.reshape((1, x.shape[1]))
         self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * batch_mean.data
         self.running_var = (1 - self.momentum) * self.running_var + self.momentum * batch_var.data
-        norm = (x - batch_mean.broadcast_to(x.shape)) / (batch_var.broadcast_to(x.shape) + self.eps)**0.5
+        norm = (x - batch_var.broadcast_to(x.shape)) / (batch_var.broadcast_to(x.shape) + self.eps)**0.5
         return self.weight.broadcast_to(x.shape) * norm + self.bias.broadcast_to(x.shape)
         ### END YOUR SOLUTION
 
@@ -289,7 +291,7 @@ class Conv(Module):
 
 class ConvBN(Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, bias=True, device=None, dtype="float32"):
-        super.__init__()
+        super().__init__()
         self.conv2d = Conv(in_channels, out_channels, kernel_size, stride=stride, bias=bias, device=device, dtype=dtype)
         self.batch_norm = BatchNorm2d(out_channels, eps=1e-5, device=device, dtype=dtype)
         self.relu = ReLU()
