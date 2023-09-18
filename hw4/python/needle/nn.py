@@ -168,8 +168,8 @@ class BatchNorm1d(Module):
         ### BEGIN YOUR SOLUTION
         self.weight = Parameter(init.ones(1, dim, device=device, dtype=dtype, requires_grad=True))
         self.bias =  Parameter(init.zeros(1, dim, device=device, dtype=dtype, requires_grad=True))
-        self.running_mean = init.zeros(1, dim)
-        self.running_var  = init.ones(1, dim)
+        self.running_mean = init.zeros(1, dim, device=device, dtype=dtype)
+        self.running_var  = init.ones(1, dim, device=device, dtype=dtype)
         ### END YOUR SOLUTION
 
     def forward(self, x: Tensor) -> Tensor:
@@ -290,7 +290,7 @@ class Conv(Module):
 
 
 class ConvBN(Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1, bias=True, device=None, dtype="float32"):
+    def __init__(self, in_channels, out_channels, kernel_size, stride, bias=True, device=None, dtype="float32"):
         super().__init__()
         self.conv2d = Conv(in_channels, out_channels, kernel_size, stride=stride, bias=bias, device=device, dtype=dtype)
         self.batch_norm = BatchNorm2d(out_channels, eps=1e-5, device=device, dtype=dtype)
