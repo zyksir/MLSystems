@@ -6,7 +6,6 @@ from .autograd import NDArray
 from .autograd import Op, Tensor, Value, TensorOp
 from .autograd import TensorTuple, TensorTupleOp
 from . import init
-import numpy
 
 from .backend_selection import array_api, NDArray
 
@@ -86,7 +85,7 @@ class AddScalar(TensorOp):
         self.scalar = scalar
 
     def compute(self, a: NDArray):
-        return a + numpy.float32(self.scalar)
+        return a + self.scalar
 
     def gradient(self, out_grad: Tensor, node: Tensor):
         return out_grad
@@ -114,7 +113,7 @@ class MulScalar(TensorOp):
         self.scalar = scalar
 
     def compute(self, a: NDArray):
-        return a * numpy.float32(self.scalar)
+        return a * self.scalar
 
     def gradient(self, out_grad: Tensor, node: Tensor):
         return (out_grad * self.scalar,)

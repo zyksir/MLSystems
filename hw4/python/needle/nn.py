@@ -270,7 +270,7 @@ class Conv(Module):
             fan_in=in_channels*kernel_size*kernel_size,
             fan_out=kernel_size*kernel_size*out_channels,
             shape=(kernel_size, kernel_size, in_channels, out_channels),
-            device = device
+            device=device
         ))
         if bias:
             bias_bound = 1/(in_channels*kernel_size*kernel_size)**0.5
