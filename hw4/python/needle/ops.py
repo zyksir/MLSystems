@@ -384,9 +384,9 @@ class LogSumExp(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         z_original = node.inputs[0]
-        max_z = z_original.realize_cached_data().max(self.axes, keepdims=True)
+        max_z = Tensor(z_original.realize_cached_data().max(self.axes, keepdims=True), device=z_original.device)
         exp_z = exp(z_original - max_z.broadcast_to(z_original.shape))
-        sum_exp_z = summation(exp_z, self.axes)
+        sum_exp_z = summation(exp_z, axes=self.axes)
         grad_sum_exp_z = out_grad / sum_exp_z
         expand_shape = list(z_original.shape)
         axes = range(len(expand_shape)) if self.axes is None else self.axes
