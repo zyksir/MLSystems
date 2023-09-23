@@ -609,5 +609,5 @@ class Embedding(Module):
         ### BEGIN YOUR SOLUTION
         seq_len, bs = x.shape
         one_hot = init.one_hot(self.num_embeddings, x, device=x.device, dtype=x.dtype)
-        return (one_hot.reshape(seq_len*bs, self.num_embeddings) @ self.weight).reshape((seq_len, bs, self.embedding_dim))
+        return (one_hot.reshape((seq_len*bs, self.num_embeddings)) @ self.weight).reshape((seq_len, bs, self.embedding_dim))
         ### END YOUR SOLUTION
