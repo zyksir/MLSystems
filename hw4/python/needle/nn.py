@@ -394,8 +394,9 @@ class RNN(Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.device = device
-        self.rnn_cells = [RNNCell(input_size, hidden_size, bias, nonlinearity, device, dtype)] + \
-            [RNNCell(hidden_size, hidden_size, bias, nonlinearity, device, dtype) for _ in range(num_layers-1)]
+        self.dtype = dtype
+        self.rnn_cells = [RNNCell(input_size, hidden_size, bias=bias, nonlinearity=nonlinearity, device=device, dtype=dtype)] + \
+            [RNNCell(hidden_size, hidden_size, bias=bias, nonlinearity=nonlinearity, device=device, dtype=dtype) for _ in range(num_layers-1)]
         ### END YOUR SOLUTION
 
     def forward(self, X, h0=None):
@@ -413,7 +414,7 @@ class RNN(Module):
         ### BEGIN YOUR SOLUTION
         seq_len, batch_size, input_size = X.shape
         if h0 is None:
-            h0 = [init.zeros(batch_size, self.hidden_size) for _ in range(self.num_layers)]
+            h0 = [init.zeros(batch_size, self.hidden_size, device=self.device, dtype=self.dtype) for _ in range(self.num_layers)]
         else:
             h0 = list(ops.split(h0, axis=0))
         X = list(ops.split(X, axis=0))
