@@ -329,12 +329,12 @@ class RNNCell(Module):
         self.device = device
         self.dtype = dtype
         bound = np.sqrt(1 / hidden_size)
-        self.W_ih = Parameter(init.rand(input_size, hidden_size, low=-bound, hight=bound, device=device, dtype=dtype, requires_grad=True))
-        self.W_hh = Parameter(init.rand(hidden_size, hidden_size, low=-bound, hight=bound, device=device, dtype=dtype, requires_grad=True))
+        self.W_ih = Parameter(init.rand(input_size, hidden_size, low=-bound, high=bound, device=device, dtype=dtype, requires_grad=True))
+        self.W_hh = Parameter(init.rand(hidden_size, hidden_size, low=-bound, high=bound, device=device, dtype=dtype, requires_grad=True))
         self.bias_ih, self.bias_hh = None, None
         if bias:
-            self.bias_ih = Parameter(init.rand(hidden_size, low=-bound, hight=bound, device=device, dtype=dtype, requires_grad=True))
-            self.bias_hh = Parameter(init.rand(hidden_size, low=-bound, hight=bound, device=device, dtype=dtype, requires_grad=True))
+            self.bias_ih = Parameter(init.rand(hidden_size, low=-bound, high=bound, device=device, dtype=dtype, requires_grad=True))
+            self.bias_hh = Parameter(init.rand(hidden_size, low=-bound, high=bound, device=device, dtype=dtype, requires_grad=True))
         if nonlinearity == 'tanh':
             self.nonlinearity = Tanh()
         elif nonlinearity == 'relu':
