@@ -122,9 +122,14 @@ def epoch_general_ptb(data, model, seq_len=40, loss_fn=nn.SoftmaxLoss(), opt=Non
     nbatch, batch_size = data.shape
     model.train() if opt is not None else model.eval()
     hidden, n = None, 0
-    for i in range(0, nbatch-1, seq_len):
+    for i in range(0, nbatch, seq_len):
         X, y = ndl.data.get_batch(data, i, seq_len, device, dtype)
         y_pred, hidden = model(X, hidden)
+        if isinstance(hidden, tuple):
+            h, c = hidden
+            hidden = (h.detach(), c.detach())
+        else:
+            hidden = hidden.detach()
         loss = loss_fn(y_pred, y)
         avg_loss += loss.data.numpy() * y.shape[0]
         avg_acc += np.sum(np.argmax(y_pred.numpy(), axis=1) == y.numpy())
@@ -133,17 +138,12 @@ def epoch_general_ptb(data, model, seq_len=40, loss_fn=nn.SoftmaxLoss(), opt=Non
             opt.reset_grad()
             loss.backward()
             opt.step()
-        if isinstance(hidden, tuple):
-            h, c = hidden
-            hidden = (h.detach(), c.detach())
-        else:
-            hidden = hidden.detach()
     return avg_acc / n, avg_loss / n
     ### END YOUR SOLUTION
 
 
 def train_ptb(model, data, seq_len=40, n_epochs=1, optimizer=ndl.optim.SGD,
-          lr=4.0, weight_decay=0.0, loss_fn=nn.SoftmaxLoss, clip=None,
+          lr=4.0, weight_decay=0.0, loss_fn=nn.SoftmaxLoss(), clip=None,
           device=None, dtype="float32"):
     """
     Performs {n_epochs} epochs of training.
@@ -172,7 +172,7 @@ def train_ptb(model, data, seq_len=40, n_epochs=1, optimizer=ndl.optim.SGD,
     ### END YOUR SOLUTION
 
 
-def evaluate_ptb(model, data, seq_len=40, loss_fn=nn.SoftmaxLoss,
+def evaluate_ptb(model, data, seq_len=40, loss_fn=nn.SoftmaxLoss(),
         device=None, dtype="float32"):
     """
     Computes the test accuracy and loss of the model.
