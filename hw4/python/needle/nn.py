@@ -493,7 +493,7 @@ class LSTMCell(Module):
         else:
             all_gates = X @ self.W_ih + h0 @ self.W_hh + (self.bias_ih + self.bias_hh)\
                 .reshape((1, 4 * self.hidden_size)).broadcast_to((batch_size, 4 * self.hidden_size))
-        splited_gates = ops.split(all_gates, axis=1)
+        splited_gates = list(ops.split(all_gates, axis=1))
         gates = [ops.stack(splited_gates[i*self.hidden_size:(i+1)*self.hidden_size], axis=1) for i in range(4)]
         i,f,g,o = gates
         i,f,g,o = self.sigmoid(i), self.sigmoid(f), self.tanh(g), self.sigmoid(o)
