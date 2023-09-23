@@ -80,7 +80,7 @@ class LanguageModel(nn.Module):
         seq_len, bs = x.shape
         x = self.embedding(x)
         x, h = self.seq_model(x, h)
-        x = self.linear(x.reshape(seq_len*bs, self.hidden_size))
+        x = self.linear(x.reshape((seq_len*bs, self.hidden_size)))
         return x, h
         ### END YOUR SOLUTION
 
