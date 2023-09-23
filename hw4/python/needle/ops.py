@@ -235,6 +235,9 @@ class BroadcastTo(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         origin_shape = node.inputs[0].shape
+        if origin_shape == self.shape:
+            return out_grad
+        
         shrink_dims = list(range(len(self.shape)))
         for i, (ori, cur) in enumerate(zip(reversed(origin_shape), reversed(self.shape))):
             if ori == cur:
